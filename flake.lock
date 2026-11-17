@@ -1,0 +1,97 @@
+{
+  "nodes": {
+    "flox-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793110786,
+        "narHash": "sha256-fhbAN0gYbIJzWjn40enVpnvYDF6ozvymlvv1Rkn5N2Q=",
+        "owner": "flox",
+        "repo": "flox-skills",
+        "rev": "917f610303a319a5788290806736d3b4413ab145",
+        "type": "github"
+      },
+      "original": {
+        "owner": "flox",
+        "repo": "flox-skills",
+        "type": "github"
+      }
+    },
+    "ghcli": {
+      "inputs": {
+        "ghcli-runtime": "ghcli-runtime",
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "path": "../ghcli",
+        "type": "path"
+      },
+      "original": {
+        "path": "../ghcli",
+        "type": "path"
+      },
+      "parent": []
+    },
+    "ghcli-runtime": {
+      "inputs": {
+        "nixpkgs": [
+          "ghcli",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1774331105,
+        "narHash": "sha256-q9nTwrDYytK1gRcMWw2JxETQS9A2hjNuetmU2HHGgmg=",
+        "owner": "barstoolbluz",
+        "repo": "package-ghcli-runtime",
+        "rev": "ed775e25b206eaf8f65f31a7f373c00a13812aa0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "barstoolbluz",
+        "repo": "package-ghcli-runtime",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1774106199,
+        "narHash": "sha256-US5Tda2sKmjrg2lNHQL3jRQ6p96cgfWh3J1QBliQ8Ws=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "6c9a78c09ff4d6c21d0319114873508a6ec01655",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1794705614,
+        "narHash": "sha256-DZ5eNWHA6heAHwkMt1SBtF1p8Lfgi4ivqdqmgxUZkLs=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "1c872b8c508bbbfebc1b0b74777ff391ce0a574c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "flox-skills": "flox-skills",
+        "ghcli": "ghcli",
+        "nixpkgs": "nixpkgs_2"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
