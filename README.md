@@ -18,10 +18,10 @@ for from its shell.
 
 ## Usage
 
-Run it directly:
+Run it directly (the repo is private, so fetch over SSH rather than `github:`):
 
 ```bash
-nix run 'github:barstoolbluz/nix-desktop-userland?dir=claude-code'
+nix run 'git+ssh://git@github.com/barstoolbluz/nix-desktop-userland?dir=claude-code'
 ```
 
 Or build once and alias the result, which skips flake evaluation on launch and
