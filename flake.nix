@@ -42,6 +42,11 @@
           )
         );
 
+      # claude-code from nixpkgs, at the release in ./manifest.json (Anthropic's
+      # manifest.zst.json; bootstrap.sh keeps it on ./channel) rather than
+      # whichever release this nixpkgs pin ships.
+      mkClaudeCode = pkgs: pkgs.claude-code.override { manifest = pkgs.lib.importJSON ./manifest.json; };
+
       # Equivalent of rust-analyzer-lsp@claude-plugins-official, whose LSP config
       # lives in its marketplace entry rather than its plugin directory.
       mkRustAnalyzerPlugin =
@@ -85,9 +90,12 @@
 
       mkClaudeCodeWithPlugins =
         pkgs:
+        let
+          claude-code = mkClaudeCode pkgs;
+        in
         pkgs.symlinkJoin {
-          name = "claude-code-with-plugins-${pkgs.claude-code.version}";
-          paths = [ pkgs.claude-code ];
+          name = "claude-code-with-plugins-${claude-code.version}";
+          paths = [ claude-code ];
           nativeBuildInputs = [ pkgs.makeWrapper ];
           postBuild = ''
             wrapProgram $out/bin/claude \
@@ -95,12 +103,12 @@
               --suffix PATH : ${pkgs.lib.makeBinPath (mkTools pkgs)} \
               ${pkgs.lib.concatMapStringsSep " " (p: "--add-flags '--plugin-dir ${p}'") (mkPlugins pkgs)}
           '';
-          inherit (pkgs.claude-code) meta;
+          inherit (claude-code) meta;
         };
     in
     {
       packages = forAllSystems (pkgs: rec {
-        claude-code = pkgs.claude-code;
+        claude-code = mkClaudeCode pkgs;
         claude-code-with-plugins = mkClaudeCodeWithPlugins pkgs;
         default = claude-code-with-plugins;
       });
