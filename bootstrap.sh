@@ -13,6 +13,16 @@ releases="https://downloads.claude.ai/claude-code-releases"
 
 log() { printf 'claude-code: %s\n' "$*" >&2; }
 manifest_version() { sed -n 's/^ *"version": *"\([^"]*\)".*/\1/p' "$1" | head -n1; }
+# Drop Nix noise: dirty-tree warnings, and the multi-line warning (indented
+# continuation lines follow it) for an unreachable cachix substituter.
+filter_nix_noise() {
+  awk '
+    /^warning: Git tree .* is dirty/ { next }
+    /^warning: unable to download .https:\/\/[^ ]*\.cachix\.org\/nix-cache-info/ { skip = 1; next }
+    skip && (/^$/ || /^[ \t]/) { next }
+    { skip = 0; print; fflush() }
+  '
+}
 
 channel="$(tr -d '[:space:]' < "$dir/channel" 2>/dev/null)"
 channel="${channel:-latest}"
@@ -42,7 +52,7 @@ built="${built##*-}"
 if [[ "$built" != "$wanted" ]]; then
   log "building $wanted"
   if ! nix --extra-experimental-features "nix-command flakes" \
-    build "$dir" -o "$state" 2> >(grep -v "Git tree .* is dirty" >&2); then
+    build "$dir" -o "$state" 2> >(filter_nix_noise >&2); then
     [[ -x "$state/bin/claude" ]] || exit 1
     log "build failed; launching existing build"
   fi
