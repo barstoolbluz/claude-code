@@ -47,29 +47,73 @@
       # whichever release this nixpkgs pin ships.
       mkClaudeCode = pkgs: pkgs.claude-code.override { manifest = pkgs.lib.importJSON ./manifest.json; };
 
-      # Equivalent of rust-analyzer-lsp@claude-plugins-official, whose LSP config
-      # lives in its marketplace entry rather than its plugin directory.
-      mkRustAnalyzerPlugin =
-        pkgs:
+      # Language servers, each bundled as a plugin plus its server on PATH. The
+      # rust-analyzer and pyright configs mirror claude-plugins-official's
+      # marketplace entries (which hold the LSP config, so those plugins can't be
+      # loaded via --plugin-dir); nixd and bash have no official plugin.
+      mkLspServers = pkgs: [
+        {
+          plugin = "rust-analyzer-lsp";
+          description = "Rust language server for code intelligence and analysis";
+          package = pkgs.rust-analyzer;
+          servers.rust-analyzer = {
+            command = "rust-analyzer";
+            extensionToLanguage.".rs" = "rust";
+          };
+        }
+        {
+          plugin = "nixd-lsp";
+          description = "Nix language server (nixd) for code intelligence";
+          package = pkgs.nixd;
+          servers.nixd = {
+            command = "nixd";
+            extensionToLanguage.".nix" = "nix";
+          };
+        }
+        {
+          plugin = "pyright-lsp";
+          description = "Python language server (Pyright) for type checking and code intelligence";
+          package = pkgs.pyright;
+          servers.pyright = {
+            command = "pyright-langserver";
+            args = [ "--stdio" ];
+            extensionToLanguage = {
+              ".py" = "python";
+              ".pyi" = "python";
+            };
+          };
+        }
+        {
+          plugin = "bash-lsp";
+          description = "Bash language server for code intelligence, with shellcheck diagnostics";
+          package = pkgs.bash-language-server;
+          servers.bash = {
+            command = "bash-language-server";
+            args = [ "start" ];
+            extensionToLanguage = {
+              ".sh" = "shellscript";
+              ".bash" = "shellscript";
+            };
+          };
+        }
+      ];
+
+      mkLspPlugin =
+        pkgs: lsp:
         pkgs.writeTextFile {
-          name = "rust-analyzer-lsp-plugin";
+          name = "${lsp.plugin}-plugin";
           destination = "/.claude-plugin/plugin.json";
           text = builtins.toJSON {
-            name = "rust-analyzer-lsp";
+            name = lsp.plugin;
             version = "1.0.0";
-            description = "Rust language server for code intelligence and analysis";
-            lspServers.rust-analyzer = {
-              command = "rust-analyzer";
-              extensionToLanguage.".rs" = "rust";
-            };
+            inherit (lsp) description;
+            lspServers = lsp.servers;
           };
         };
 
       # Plugin directories passed to claude via --plugin-dir.
-      mkPlugins = pkgs: [
-        "${flox-skills}/flox-plugin"
-        "${mkRustAnalyzerPlugin pkgs}"
-      ];
+      mkPlugins =
+        pkgs: [ "${flox-skills}/flox-plugin" ] ++ map (lsp: "${mkLspPlugin pkgs lsp}") (mkLspServers pkgs);
 
       # `gh` for claude's shell commands, routed through the sibling ghcli flake
       # (and its token management).
@@ -81,12 +125,14 @@
 
       # Tools for claude's shell commands. Suffixed onto PATH so the user's own
       # copies (e.g. a rustup-managed rust-analyzer) win.
-      mkTools = pkgs: [
-        (mkGhShim pkgs)
-        pkgs.nixfmt
-        pkgs.shellcheck
-        pkgs.rust-analyzer
-      ];
+      mkTools =
+        pkgs:
+        [
+          (mkGhShim pkgs)
+          pkgs.nixfmt
+          pkgs.shellcheck
+        ]
+        ++ map (lsp: lsp.package) (mkLspServers pkgs);
 
       mkClaudeCodeWithPlugins =
         pkgs:

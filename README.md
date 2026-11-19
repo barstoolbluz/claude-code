@@ -8,11 +8,13 @@ for from its shell.
 - **Plugins** (loaded via `--plugin-dir`, no `~/.claude` install needed):
   - `flox` — the flox, floxify and flox-debug skills, pinned from
     [flox/flox-skills](https://github.com/flox/flox-skills)
-  - `rust-analyzer-lsp` — Rust code intelligence
+  - Language servers, each with its server bundled: `rust-analyzer-lsp`
+    (Rust), `nixd-lsp` (Nix), `pyright-lsp` (Python), and `bash-lsp` (shell,
+    with shellcheck diagnostics)
 - **Tools**, appended to `PATH` so your own copies win:
   - `gh` — routed through the sibling [`ghcli`](../ghcli) flake, so it gets
     ghcli's token management
-  - `nixfmt`, `shellcheck`, `rust-analyzer`
+  - `nixfmt`, `shellcheck`, and the language servers above
 - **Flakes** — sets `NIX_CONFIG` to enable `nix-command flakes`, unless
   `NIX_CONFIG` is already set
 
