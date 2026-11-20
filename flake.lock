@@ -22,14 +22,18 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "path": "../ghcli",
-        "type": "path"
+        "lastModified": 1795192073,
+        "narHash": "sha256-GGQhBplO58r9fhmuL8D5RgHOxFfodq7AI5HOMMU67Bw=",
+        "owner": "barstoolbluz",
+        "repo": "ghcli",
+        "rev": "4423aff2a84e03b58fbd850f5b4e308d9c578c72",
+        "type": "github"
       },
       "original": {
-        "path": "../ghcli",
-        "type": "path"
-      },
-      "parent": []
+        "owner": "barstoolbluz",
+        "repo": "ghcli",
+        "type": "github"
+      }
     },
     "ghcli-runtime": {
       "inputs": {

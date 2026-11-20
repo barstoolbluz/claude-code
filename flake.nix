@@ -7,8 +7,8 @@
       url = "github:flox/flox-skills";
       flake = false;
     };
-    # Sibling flake in this repo; keeps its own nixpkgs pin.
-    ghcli.url = "path:../ghcli";
+    # Keeps its own nixpkgs pin.
+    ghcli.url = "github:barstoolbluz/ghcli";
   };
 
   outputs =
@@ -115,7 +115,7 @@
       mkPlugins =
         pkgs: [ "${flox-skills}/flox-plugin" ] ++ map (lsp: "${mkLspPlugin pkgs lsp}") (mkLspServers pkgs);
 
-      # `gh` for claude's shell commands, routed through the sibling ghcli flake
+      # `gh` for claude's shell commands, routed through the ghcli flake
       # (and its token management).
       mkGhShim =
         pkgs:

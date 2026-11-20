@@ -12,7 +12,7 @@ for from its shell.
     (Rust), `nixd-lsp` (Nix), `pyright-lsp` (Python), and `bash-lsp` (shell,
     with shellcheck diagnostics)
 - **Tools**, appended to `PATH` so your own copies win:
-  - `gh` — routed through the sibling [`ghcli`](../ghcli) flake, so it gets
+  - `gh` — routed through the [`ghcli`](https://github.com/barstoolbluz/ghcli) flake, so it gets
     ghcli's token management
   - `nixfmt`, `shellcheck`, and the language servers above
 - **Flakes** — sets `NIX_CONFIG` to enable `nix-command flakes`, unless
@@ -21,7 +21,7 @@ for from its shell.
 ## Usage
 
 ```bash
-alias kklaude='~/dev/nix/claude-code/bootstrap.sh --dangerously-skip-permissions'
+alias kklaude='~/dev/claude-code-nix/bootstrap.sh --dangerously-skip-permissions'
 ```
 
 `bootstrap.sh` keeps Claude Code on Anthropic's release channel. On each
@@ -30,14 +30,29 @@ that release's manifest into `manifest.json`, commits it locally, and rebuilds
 into `~/.local/state/claude-code-nix` (which also keeps the build from being
 garbage-collected). Offline, it launches the existing build.
 
-Or run it straight from GitHub, at whatever `manifest.json` is committed (the
-repo is private, so fetch over SSH rather than `github:`):
+Or run it straight from GitHub, at the release in the pushed `manifest.json`:
 
 ```bash
-nix run 'git+ssh://git@github.com/barstoolbluz/nix-desktop-userland?dir=claude-code'
+nix run github:barstoolbluz/claude-code
 ```
 
+`nix run` doesn't run `bootstrap.sh`, so it only sees a new release after a
+clone's update commit is pushed. Nix caches `github:` fetches for an hour; add
+`--refresh` to check sooner.
+
 The unwrapped package is available as `.#claude-code`.
+
+## User instructions
+
+`user/CLAUDE.md` holds instructions for every Claude Code session, whatever
+the project. Link it into place once per machine:
+
+```bash
+ln -s ~/dev/claude-code-nix/user/CLAUDE.md ~/.claude/CLAUDE.md
+```
+
+Edits take effect in the next session, with no rebuild. Run `/memory` in a
+session to confirm that Claude Code loaded it.
 
 ## Versions
 
