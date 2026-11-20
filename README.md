@@ -36,9 +36,9 @@ Or run it straight from GitHub, at the release in the pushed `manifest.json`:
 nix run github:barstoolbluz/claude-code
 ```
 
-`nix run` doesn't run `bootstrap.sh`, so it only sees a new release after a
-clone's update commit is pushed. Nix caches `github:` fetches for an hour; add
-`--refresh` to check sooner.
+An hourly GitHub Actions workflow (`.github/workflows/update.yml`) does what
+`bootstrap.sh` does: it follows `channel` and commits each new `manifest.json`.
+Nix caches `github:` fetches for an hour; add `--refresh` to check sooner.
 
 The unwrapped package is available as `.#claude-code`.
 

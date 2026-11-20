@@ -1,0 +1,47 @@
+# Keep manifest.json on the channel named in ./channel, as bootstrap.sh does
+# locally, so `nix run github:barstoolbluz/claude-code` gets new releases.
+name: update
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: update
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Update manifest.json
+        run: |
+          set -euo pipefail
+          releases="https://downloads.claude.ai/claude-code-releases"
+          manifest_version() { sed -n 's/^ *"version": *"\([^"]*\)".*/\1/p' "$1" | head -n1; }
+
+          channel="$(tr -d '[:space:]' < channel 2>/dev/null || true)"
+          channel="${channel:-latest}"
+          case "$channel" in
+            latest | stable) target="$(curl -fsS -m 30 "$releases/$channel")" ;;
+            *) target="$channel" ;;
+          esac
+          current="$(manifest_version manifest.json)"
+          if [[ ! "$target" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
+            echo "::error::unexpected version from channel $channel: $target"
+            exit 1
+          fi
+          if [[ "$target" == "$current" ]]; then
+            echo "up to date at $current"
+            exit 0
+          fi
+
+          curl -fsS -m 60 "$releases/$target/manifest.zst.json" -o manifest.json.new
+          jq -e . manifest.json.new > /dev/null
+          [[ "$(manifest_version manifest.json.new)" == "$target" ]]
+          mv manifest.json.new manifest.json
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "claude-code: $current -> $target" -- manifest.json
+          git push
